@@ -3,318 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EarnCash - Play & Earn</title>
+    <title>EarnCash - Watch & Earn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- PropellerAds Popunder Script -->
-    <script>(function(s){s.dataset.zone='10754413',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <!-- Adsterra Popunder Script -->
+    <script src="https://pl28926111.profitablecpmratenetwork.com/12/15/fb/1215fb57c30c4cef7e5d7329a5f9cc53.js"></script>
 
     <style>
-        :root { --primary: #6366f1; --secondary: #a855f7; --bg: #0f172a; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; user-select: none; }
+        :root { --primary: #6366f1; --bg: #0f172a; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
         .glass-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
-        .gradient-text { background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .task-card { transition: all 0.3s ease; cursor: pointer; position: relative; overflow: hidden; }
-        .task-card:active { transform: scale(0.95); }
         .page { display: none; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .cooldown-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; border-radius: 24px; }
-        #wheel { width: 250px; height: 250px; border-radius: 50%; border: 8px solid #fff; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1); background: conic-gradient(#f43f5e 0deg 60deg, #6366f1 60deg 120deg, #a855f7 120deg 180deg, #22c55e 180deg 240deg, #eab308 240deg 300deg, #3b82f6 300deg 360deg); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Full Screen Ad Overlay */
+        #ad-screen {
+            position: fixed; inset: 0; background: #000; z-index: 100;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .timer-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            border: 5px solid #333; border-top-color: #6366f1;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; font-bold; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .no-spin { animation: none !important; }
     </style>
 </head>
 <body class="p-4 md:max-w-md mx-auto">
 
-    <!-- Top Bar -->
+    <!-- Header -->
     <nav class="flex justify-between items-center py-4 mb-6">
-        <div>
-            <h1 class="text-2xl font-bold gradient-text">EarnCash</h1>
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest">Rewards Dashboard</p>
-        </div>
-        <div class="glass-card px-4 py-2 flex items-center gap-2 border-indigo-500/30">
-            <span class="text-yellow-400 text-xl">🪙</span>
-            <span id="balance-display" class="font-bold text-lg">0</span>
+        <h1 class="text-2xl font-bold text-indigo-400">EarnCash</h1>
+        <div class="glass-card px-4 py-2 flex items-center gap-2">
+            <span class="text-yellow-400">🪙</span>
+            <span id="balance-display" class="font-bold">0</span>
         </div>
     </nav>
 
-    <!-- MAIN DASHBOARD -->
+    <!-- DASHBOARD -->
     <div id="dashboard" class="page active">
-        <!-- Daily Bonus -->
-        <div class="glass-card p-5 mb-6 bg-gradient-to-br from-indigo-600/40 to-purple-600/40 border-none relative overflow-hidden">
-            <div class="relative z-10">
-                <h3 class="font-bold text-lg">Daily Gift Box</h3>
-                <p class="text-xs opacity-70 mb-3">Claim your free 50 points now!</p>
-                <button onclick="claimDaily()" class="bg-white text-indigo-600 px-6 py-2 rounded-full font-bold text-xs">CLAIM NOW</button>
-            </div>
-            <span class="absolute right-[-10px] bottom-[-10px] text-7xl opacity-20">🎁</span>
-        </div>
-
-        <h2 class="text-lg font-semibold mb-4 ml-1">Main Tasks</h2>
         <div class="grid grid-cols-2 gap-4">
-            <!-- Math Task -->
-            <div onclick="showPage('math-task')" class="task-card glass-card p-5 text-center">
-                <div id="math-cooldown" class="cooldown-overlay text-xs"><span>Wait</span><b class="timer-text">00:00</b></div>
-                <div class="text-4xl mb-2">➕</div>
-                <h3 class="font-bold">Math Quiz</h3>
-                <p class="text-[10px] text-green-400">+20 Points</p>
-            </div>
-            <!-- Spin Task -->
-            <div onclick="showPage('spin-task')" class="task-card glass-card p-5 text-center">
-                <div id="spin-cooldown" class="cooldown-overlay text-xs"><span>Wait</span><b class="timer-text">00:00</b></div>
-                <div class="text-4xl mb-2">🎡</div>
-                <h3 class="font-bold">Spin Win</h3>
-                <p class="text-[10px] text-green-400">Up to 50 pts</p>
-            </div>
-            <!-- Captcha Task -->
-            <div onclick="showPage('captcha-task')" class="task-card glass-card p-5 text-center">
-                <div id="captcha-cooldown" class="cooldown-overlay text-xs"><span>Wait</span><b class="timer-text">00:00</b></div>
-                <div class="text-4xl mb-2">🧩</div>
-                <h3 class="font-bold">Captcha</h3>
-                <p class="text-[10px] text-green-400">+10 Points</p>
-            </div>
-            <!-- Ads Task -->
-            <div onclick="showPropellerAd()" class="task-card glass-card p-5 text-center border-yellow-500/20">
-                <div id="ads-cooldown" class="cooldown-overlay text-xs"><span>Limit Reached</span><b class="timer-text">Next Hour</b></div>
-                <div class="text-4xl mb-2">🎬</div>
+            <!-- Other tasks... (Math, Spin, etc.) -->
+            <div class="glass-card p-5 text-center opacity-50"><div class="text-3xl">🧮</div><p class="text-xs">Math</p></div>
+            <div class="glass-card p-5 text-center opacity-50"><div class="text-3xl">🎡</div><p class="text-xs">Spin</p></div>
+            
+            <!-- ADS TASK (MODIFIED) -->
+            <div onclick="startVideoAd()" id="ad-card" class="task-card glass-card p-5 text-center border-indigo-500/50 relative overflow-hidden">
+                <div id="ad-cooldown-ui" class="absolute inset-0 bg-black/80 hidden flex-col items-center justify-center z-10">
+                    <span class="text-[10px] text-gray-400">Next Ad in</span>
+                    <span id="ad-timer" class="text-sm font-bold text-indigo-400">60:00</span>
+                </div>
+                <div class="text-4xl mb-2">📺</div>
                 <h3 class="font-bold">Watch Ads</h3>
-                <p class="text-[10px] text-yellow-400" id="ad-count-text">Left: 5/5</p>
+                <p class="text-[10px] text-green-400" id="ad-count-txt">Limit: 5/5 Left</p>
             </div>
         </div>
 
-        <!-- Wallet Card -->
+        <!-- Wallet Section -->
         <div class="mt-8 glass-card p-5">
-            <div class="flex justify-between items-end mb-4">
-                <div>
-                    <p class="text-xs text-gray-400">Total Balance</p>
-                    <h2 class="text-3xl font-bold" id="rs-display">₹0.00</h2>
-                </div>
-                <div class="text-right">
-                    <p class="text-[10px] text-gray-400">Min. Payout</p>
-                    <p class="text-xs font-bold text-indigo-400">₹50.00</p>
-                </div>
+            <p class="text-xs text-gray-400">Balance in Cash</p>
+            <h2 class="text-3xl font-bold mb-4" id="rs-display">₹0.00</h2>
+            <button class="w-full bg-indigo-600 py-3 rounded-xl font-bold">Withdraw Now</button>
+        </div>
+    </div>
+
+    <!-- FULL SCREEN AD MODAL -->
+    <div id="ad-screen">
+        <div class="text-center p-6">
+            <h2 class="text-xl font-bold mb-2">Watching Ad...</h2>
+            <p class="text-gray-400 text-sm mb-10">Do not close this screen to earn points</p>
+            
+            <div class="relative flex items-center justify-center mb-10">
+                <div id="loader" class="timer-circle"></div>
+                <div id="countdown-text" class="absolute text-2xl font-bold">30</div>
             </div>
-            <button onclick="showPage('withdraw-page')" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20">WITHDRAW CASH</button>
+
+            <p id="ad-msg" class="text-indigo-400 animate-pulse text-sm">Ad Loading & Playing...</p>
+
+            <!-- CLOSE BUTTON (Hidden Initially) -->
+            <button id="close-ad-btn" onclick="collectAdReward()" class="hidden mt-6 bg-green-600 px-10 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-green-500/20">
+                ✅ COLLECT REWARD
+            </button>
         </div>
     </div>
 
-    <!-- MATH PAGE -->
-    <div id="math-task" class="page">
-        <button onclick="showPage('dashboard')" class="mb-4 text-sm text-gray-400">← Back to Home</button>
-        <div class="glass-card p-8 text-center">
-            <h2 class="text-xl font-bold mb-2">Solve this Question</h2>
-            <p class="text-xs text-gray-400 mb-8">Correct answer gives you 20 points</p>
-            <div class="text-5xl font-bold mb-8 gradient-text" id="math-q">-- + --</div>
-            <input type="number" id="math-a" placeholder="Enter Answer" class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center text-2xl mb-6 outline-none focus:border-indigo-500 transition-all">
-            <button onclick="checkMath()" class="w-full bg-indigo-600 py-4 rounded-2xl font-bold">Submit Answer</button>
-            <p class="mt-4 text-xs opacity-50">Question <span id="m-step">1</span> of 5</p>
-        </div>
-    </div>
-
-    <!-- SPIN PAGE -->
-    <div id="spin-task" class="page text-center">
-        <button onclick="showPage('dashboard')" class="mb-4 text-sm text-gray-400 block">← Back</button>
-        <div class="glass-card p-6 flex flex-col items-center">
-            <h2 class="text-xl font-bold mb-8">Lucky Spin Wheel</h2>
-            <div class="relative mb-10">
-                <div id="wheel"></div>
-                <div class="absolute top-[-15px] left-1/2 -translate-x-1/2 text-3xl z-30">🔽</div>
-            </div>
-            <button onclick="spinNow()" id="spinBtn" class="w-full bg-rose-600 py-4 rounded-2xl font-bold shadow-xl">SPIN & WIN</button>
-        </div>
-    </div>
-
-    <!-- CAPTCHA PAGE -->
-    <div id="captcha-task" class="page">
-        <button onclick="showPage('dashboard')" class="mb-4 text-sm text-gray-400">← Back</button>
-        <div class="glass-card p-8 text-center">
-            <h2 class="text-xl font-bold mb-2">Verify Captcha</h2>
-            <div class="bg-white/10 p-4 rounded-xl mb-6 tracking-[10px] text-2xl font-mono font-bold italic select-none" id="captcha-code">A7B2X</div>
-            <input type="text" id="captcha-input" placeholder="Type characters" class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-center text-xl mb-6 outline-none">
-            <button onclick="checkCaptcha()" class="w-full bg-emerald-600 py-4 rounded-2xl font-bold">Confirm & Earn</button>
-        </div>
-    </div>
-
-    <!-- WITHDRAW PAGE -->
-    <div id="withdraw-page" class="page">
-        <button onclick="showPage('dashboard')" class="mb-4 text-sm text-gray-400">← Back</button>
-        <div class="glass-card p-6">
-            <h2 class="text-xl font-bold mb-6">Redeem Points</h2>
-            <div class="space-y-4">
-                <select class="w-full bg-slate-900 p-4 rounded-xl border border-slate-700 outline-none">
-                    <option>Paytm Wallet</option>
-                    <option>UPI ID (GPay/PhonePe)</option>
-                </select>
-                <input type="text" placeholder="Wallet Number / UPI ID" class="w-full bg-slate-900 p-4 rounded-xl border border-slate-700 outline-none">
-                <input type="number" placeholder="Enter Points (Min 5000)" class="w-full bg-slate-900 p-4 rounded-xl border border-slate-700 outline-none">
-                <button onclick="alert('Success! Payment will arrive in 24 hours.')" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg mt-4">Submit Request</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- NOTIFICATION -->
-    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full font-bold shadow-2xl hidden z-50 transition-all text-sm"></div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full font-bold hidden z-[200]"></div>
 
     <script>
-        // --- APP STATE ---
         let points = parseInt(localStorage.getItem('user_pts')) || 0;
-        let mathStep = 1;
-        let correctAns = 0;
-        let adsToday = parseInt(localStorage.getItem('ads_count')) || 0;
-        let lastAdReset = localStorage.getItem('ad_reset_time');
+        let adsWatched = parseInt(localStorage.getItem('ads_watched_count')) || 0;
+        let lastReset = localStorage.getItem('ad_reset_time');
 
-        // --- CORE FUNCTIONS ---
         function init() {
             updateUI();
-            checkAllCooldowns();
-            setInterval(checkAllCooldowns, 1000);
-            
-            // Ad Reset Logic (Every 1 Hour)
-            const now = Date.now();
-            if (!lastAdReset || now - lastAdReset > 3600000) {
-                adsToday = 0;
-                localStorage.setItem('ads_count', 0);
-                localStorage.setItem('ad_reset_time', now);
-            }
+            checkAdLimit();
+            setInterval(checkAdLimit, 1000);
         }
 
         function updateUI() {
             document.getElementById('balance-display').innerText = points;
             document.getElementById('rs-display').innerText = '₹' + (points / 100).toFixed(2);
-            document.getElementById('ad-count-text').innerText = `Left: ${5 - adsToday}/5`;
+            document.getElementById('ad-count-txt').innerText = `Limit: ${5 - adsWatched}/5 Left`;
             localStorage.setItem('user_pts', points);
         }
 
-        function showPage(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'math-task') generateMath();
-            if(id === 'captcha-task') generateCaptcha();
+        // --- AD LOGIC ---
+        function startVideoAd() {
+            if (adsWatched >= 5) {
+                showToast("Hourly limit reached!");
+                return;
+            }
+
+            // Show Full Screen Modal
+            document.getElementById('ad-screen').style.display = 'flex';
+            
+            let timeLeft = 30;
+            const countdownTxt = document.getElementById('countdown-text');
+            const loader = document.getElementById('loader');
+            const closeBtn = document.getElementById('close-ad-btn');
+            const adMsg = document.getElementById('ad-msg');
+
+            // Reset UI
+            closeBtn.classList.add('hidden');
+            loader.classList.remove('no-spin');
+            adMsg.innerText = "Ad Playing... (Open in background)";
+            countdownTxt.innerText = timeLeft;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                countdownTxt.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    loader.classList.add('no-spin');
+                    countdownTxt.innerText = "OK";
+                    adMsg.innerText = "Reward Ready!";
+                    adMsg.classList.remove('animate-pulse');
+                    closeBtn.classList.remove('hidden'); // Show the button after 30 sec
+                }
+            }, 1000);
+        }
+
+        function collectAdReward() {
+            // Credit points
+            points += 20;
+            adsWatched++;
+            
+            localStorage.setItem('ads_watched_count', adsWatched);
+            if (adsWatched >= 5) {
+                localStorage.setItem('ad_reset_time', Date.now() + 3600000); // 1 hour cooldown
+            }
+
+            // UI Reset
+            document.getElementById('ad-screen').style.display = 'none';
+            updateUI();
+            showToast("Success! +20 Points Added");
+        }
+
+        function checkAdLimit() {
+            const resetTime = localStorage.getItem('ad_reset_time');
+            const cooldownUI = document.getElementById('ad-cooldown-ui');
+            const adTimerTxt = document.getElementById('ad-timer');
+
+            if (resetTime && Date.now() < resetTime) {
+                cooldownUI.classList.remove('hidden');
+                let rem = Math.floor((resetTime - Date.now()) / 1000);
+                let m = Math.floor(rem / 60);
+                let s = rem % 60;
+                adTimerTxt.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            } else {
+                cooldownUI.classList.add('hidden');
+                if (resetTime) {
+                    adsWatched = 0;
+                    localStorage.setItem('ads_watched_count', 0);
+                    localStorage.removeItem('ad_reset_time');
+                    updateUI();
+                }
+            }
         }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 2500);
-        }
-
-        // --- TASK 1: MATH ---
-        function generateMath() {
-            let n1 = Math.floor(Math.random() * 20) + 1;
-            let n2 = Math.floor(Math.random() * 20) + 1;
-            correctAns = n1 + n2;
-            document.getElementById('math-q').innerText = `${n1} + ${n2}`;
-        }
-
-        function checkMath() {
-            let val = document.getElementById('math-a').value;
-            if(val == correctAns) {
-                if(mathStep >= 5) {
-                    addPoints(20);
-                    setCooldown('math', 3600);
-                    mathStep = 1;
-                    showPage('dashboard');
-                } else {
-                    mathStep++;
-                    document.getElementById('m-step').innerText = mathStep;
-                    document.getElementById('math-a').value = '';
-                    generateMath();
-                }
-            } else { alert("Wrong! Try again."); }
-        }
-
-        // --- TASK 2: SPIN ---
-        function spinNow() {
-            const btn = document.getElementById('spinBtn');
-            const wheel = document.getElementById('wheel');
-            btn.disabled = true;
-            let deg = Math.floor(Math.random() * 360) + 1800;
-            wheel.style.transform = `rotate(${deg}deg)`;
-
-            setTimeout(() => {
-                addPoints(25);
-                setCooldown('spin', 3600);
-                showPage('dashboard');
-                btn.disabled = false;
-            }, 4000);
-        }
-
-        // --- TASK 3: CAPTCHA ---
-        function generateCaptcha() {
-            const code = Math.random().toString(36).substring(2, 7).toUpperCase();
-            document.getElementById('captcha-code').innerText = code;
-        }
-
-        function checkCaptcha() {
-            let input = document.getElementById('captcha-input').value.toUpperCase();
-            let code = document.getElementById('captcha-code').innerText;
-            if(input === code) {
-                addPoints(10);
-                setCooldown('captcha', 3600);
-                showPage('dashboard');
-            } else { alert("Captcha Invalid!"); generateCaptcha(); }
-        }
-
-        // --- TASK 4: PROPELLER ADS (Watch & Earn) ---
-        function showPropellerAd() {
-            if(adsToday >= 5) {
-                showToast("Limit reached! Try next hour.");
-                return;
-            }
-
-            // Propeller Popunder works on click. 
-            // Here we just notify the user and credit points.
-            showToast("Loading Ad... Please wait");
-            
-            setTimeout(() => {
-                adsToday++;
-                localStorage.setItem('ads_count', adsToday);
-                addPoints(15);
-                updateUI();
-                showToast("Success! +15 Points Earned.");
-                
-                if(adsToday >= 5) {
-                    setCooldown('ads', 3600);
-                }
-            }, 2000);
-        }
-
-        // --- UTILS ---
-        function addPoints(amt) {
-            points += amt;
-            updateUI();
-            showToast(`Task Complete! +${amt} Points`);
-        }
-
-        function setCooldown(task, sec) {
-            localStorage.setItem(`${task}_cd`, Date.now() + (sec * 1000));
-        }
-
-        function checkAllCooldowns() {
-            ['math', 'spin', 'captcha', 'ads'].forEach(key => {
-                let expiry = localStorage.getItem(`${key}_cd`);
-                let overlay = document.getElementById(`${key}-cooldown`);
-                if(expiry && Date.now() < expiry) {
-                    overlay.style.display = 'flex';
-                    let rem = Math.floor((expiry - Date.now()) / 1000);
-                    let m = Math.floor(rem / 60);
-                    let s = rem % 60;
-                    overlay.querySelector('.timer-text').innerText = `${m}:${s < 10 ? '0':''}${s}`;
-                } else {
-                    overlay.style.display = 'none';
-                }
-            });
-        }
-
-        function claimDaily() {
-            let last = localStorage.getItem('last_daily');
-            if(last === new Date().toDateString()) {
-                showToast("Already claimed today!");
-            } else {
-                addPoints(50);
-                localStorage.setItem('last_daily', new Date().toDateString());
-            }
+            setTimeout(() => t.classList.add('hidden'), 3000);
         }
 
         init();
