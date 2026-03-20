@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnCash - Play & Earn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #f43f5e;
+            --bg: #0f172a;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: white;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .task-card {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .task-card:active {
+            transform: scale(0.95);
+        }
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Spin Wheel Style */
+        #wheel {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 8px solid #fff;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1);
+            background: conic-gradient(
+                #f43f5e 0deg 60deg, 
+                #6366f1 60deg 120deg, 
+                #a855f7 120deg 180deg, 
+                #22c55e 180deg 240deg, 
+                #eab308 240deg 300deg, 
+                #3b82f6 300deg 360deg
+            );
+        }
+
+        .cooldown-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 24px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="p-4 md:max-w-md mx-auto">
+
+    <!-- Top Navigation -->
+    <nav class="flex justify-between items-center py-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold gradient-text">EarnCash</h1>
+            <p class="text-xs text-gray-400">Welcome back, User!</p>
+        </div>
+        <div class="glass-card px-4 py-2 flex items-center gap-2">
+            <span class="text-yellow-400">🪙</span>
+            <span id="balance-display" class="font-bold">0</span>
+        </div>
+    </nav>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard" class="page active">
+        <!-- Daily Reward -->
+        <div class="glass-card p-4 mb-6 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-purple-600">
+            <div>
+                <h3 class="font-bold text-lg">Daily Bonus</h3>
+                <p class="text-sm opacity-80">Claim your 50 points</p>
+            </div>
+            <button onclick="claimDaily()" id="dailyBtn" class="bg-white text-indigo-600 px-4 py-2 rounded-full font-bold text-sm shadow-lg">Claim</button>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4">Earn Points</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <!-- Task 1 -->
+            <div onclick="showPage('math-task')" class="task-card glass-card p-4 text-center relative overflow-hidden">
+                <div id="math-cooldown" class="cooldown-overlay"><span class="timer-text">60:00</span></div>
+                <div class="text-4xl mb-2">🧮</div>
+                <h3 class="font-bold">Math Quiz</h3>
+                <p class="text-xs text-gray-400">Earn 20 pts</p>
+            </div>
+            <!-- Task 2 -->
+            <div onclick="showPage('spin-task')" class="task-card glass-card p-4 text-center relative overflow-hidden">
+                <div id="spin-cooldown" class="cooldown-overlay"><span class="timer-text">60:00</span></div>
+                <div class="text-4xl mb-2">🎡</div>
+                <h3 class="font-bold">Lucky Spin</h3>
+                <p class="text-xs text-gray-400">Up to 50 pts</p>
+            </div>
+            <!-- Task 3 -->
+            <div onclick="showPage('captcha-task')" class="task-card glass-card p-4 text-center relative overflow-hidden">
+                <div id="captcha-cooldown" class="cooldown-overlay"><span class="timer-text">60:00</span></div>
+                <div class="text-4xl mb-2">🤖</div>
+                <h3 class="font-bold">Captcha</h3>
+                <p class="text-xs text-gray-400">Earn 10 pts</p>
+            </div>
+            <!-- Task 4 -->
+            <div onclick="showAd()" class="task-card glass-card p-4 text-center">
+                <div class="text-4xl mb-2">📺</div>
+                <h3 class="font-bold">Watch Ads</h3>
+                <p class="text-xs text-gray-400">Earn 15 pts</p>
+            </div>
+        </div>
+
+        <!-- Wallet Stats -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">Your Progress</h2>
+            <div class="glass-card p-4 space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-300">Daily Earnings</span>
+                    <span class="font-bold text-green-400" id="daily-earning">₹0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-300">Referral Earnings</span>
+                    <span class="font-bold text-blue-400">₹0.00</span>
+                </div>
+                <button onclick="showPage('withdraw-page')" class="w-full bg-indigo-600 py-3 rounded-xl font-bold mt-2 shadow-indigo-500/20 shadow-xl">Withdraw Money</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MATH TASK PAGE -->
+    <div id="math-task" class="page">
+        <button onclick="showPage('dashboard')" class="mb-4 text-gray-400">← Back</button>
+        <div class="glass-card p-6 text-center">
+            <h2 class="text-2xl font-bold mb-6">Solve & Earn</h2>
+            <div class="text-4xl font-bold mb-8" id="math-question">12 + 5 = ?</div>
+            <input type="number" id="math-answer" placeholder="Your Answer" class="w-full bg-slate-800 border-2 border-indigo-500 rounded-xl p-4 text-center text-xl mb-4 outline-none">
+            <button onclick="checkMath()" class="w-full bg-indigo-600 py-4 rounded-xl font-bold text-lg">Submit Answer</button>
+            <p class="mt-4 text-sm text-gray-400">Step: <span id="math-step">1</span>/5</p>
+        </div>
+    </div>
+
+    <!-- SPIN TASK PAGE -->
+    <div id="spin-task" class="page">
+        <button onclick="showPage('dashboard')" class="mb-4 text-gray-400">← Back</button>
+        <div class="glass-card p-6 flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-8">Lucky Wheel</h2>
+            <div id="wheel-container" class="relative mb-8">
+                <div id="wheel"></div>
+                <div class="absolute top-[-20px] left-1/2 -translate-x-1/2 text-3xl">▼</div>
+            </div>
+            <button onclick="spinNow()" id="spinBtn" class="w-full bg-rose-600 py-4 rounded-xl font-bold text-lg shadow-lg">SPIN NOW</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAW PAGE -->
+    <div id="withdraw-page" class="page">
+        <button onclick="showPage('dashboard')" class="mb-4 text-gray-400">← Back</button>
+        <div class="glass-card p-6">
+            <h2 class="text-2xl font-bold mb-2">Withdraw</h2>
+            <p class="text-sm text-gray-400 mb-6">1000 Points = ₹10</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase text-gray-400 mb-1">Method</label>
+                    <select class="w-full bg-slate-800 p-3 rounded-lg border border-gray-700">
+                        <option>UPI (GPay/PhonePe)</option>
+                        <option>Paytm Wallet</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase text-gray-400 mb-1">UPI ID / Mobile</label>
+                    <input type="text" placeholder="example@upi" class="w-full bg-slate-800 p-3 rounded-lg border border-gray-700">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase text-gray-400 mb-1">Amount (Points)</label>
+                    <input type="number" placeholder="Min 5000 points" class="w-full bg-slate-800 p-3 rounded-lg border border-gray-700">
+                </div>
+                <button onclick="alert('Withdrawal Request Sent Successfully!')" class="w-full bg-green-600 py-4 rounded-xl font-bold text-lg mt-4">Redeem Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION POPUP -->
+    <div id="popup" class="fixed bottom-10 left-1/2 -translate-x-1/2 glass-card px-6 py-3 border-green-500 border hidden transition-all">
+        <span id="popup-msg" class="text-green-400 font-bold"></span>
+    </div>
+
+    <script>
+        // App State
+        let points = parseInt(localStorage.getItem('points')) || 0;
+        let mathStep = 1;
+        let currentMathAns = 0;
+
+        // Initialize App
+        function init() {
+            updateUI();
+            checkCooldowns();
+            setInterval(checkCooldowns, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('balance-display').innerText = points;
+            document.getElementById('daily-earning').innerText = '₹' + (points / 100).toFixed(2);
+            localStorage.setItem('points', points);
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if(pageId === 'math-task') generateMath();
+        }
+
+        function showToast(msg) {
+            const p = document.getElementById('popup');
+            document.getElementById('popup-msg').innerText = msg;
+            p.classList.remove('hidden');
+            setTimeout(() => p.classList.add('hidden'), 3000);
+        }
+
+        // --- MATH TASK LOGIC ---
+        function generateMath() {
+            const a = Math.floor(Math.random() * 20);
+            const b = Math.floor(Math.random() * 20);
+            currentMathAns = a + b;
+            document.getElementById('math-question').innerText = `${a} + ${b} = ?`;
+        }
+
+        function checkMath() {
+            const userAns = document.getElementById('math-answer').value;
+            if (userAns == currentMathAns) {
+                if (mathStep >= 5) {
+                    points += 20;
+                    mathStep = 1;
+                    setCooldown('math', 3600); // 1 hour
+                    showPage('dashboard');
+                    showToast("+20 Points Earned!");
+                } else {
+                    mathStep++;
+                    document.getElementById('math-step').innerText = mathStep;
+                    generateMath();
+                    document.getElementById('math-answer').value = '';
+                }
+            } else {
+                alert("Wrong Answer!");
+            }
+            updateUI();
+        }
+
+        // --- SPIN WHEEL LOGIC ---
+        function spinNow() {
+            const wheel = document.getElementById('wheel');
+            const randomDeg = Math.floor(Math.random() * 360) + 1800; // 5 full spins min
+            wheel.style.transform = `rotate(${randomDeg}deg)`;
+            
+            document.getElementById('spinBtn').disabled = true;
+
+            setTimeout(() => {
+                points += 25;
+                updateUI();
+                showToast("+25 Lucky Points!");
+                setCooldown('spin', 3600);
+                showPage('dashboard');
+            }, 4000);
+        }
+
+        // --- AD SIMULATION ---
+        function showAd() {
+            showToast("Loading Video Ad...");
+            setTimeout(() => {
+                points += 15;
+                updateUI();
+                showToast("+15 Points for Watching!");
+            }, 3000);
+        }
+
+        // --- COOLDOWN SYSTEM ---
+        function setCooldown(task, seconds) {
+            const expiry = Date.now() + (seconds * 1000);
+            localStorage.setItem(`${task}_cooldown`, expiry);
+        }
+
+        function checkCooldowns() {
+            const tasks = ['math', 'spin', 'captcha'];
+            tasks.forEach(task => {
+                const expiry = localStorage.getItem(`${task}_cooldown`);
+                const overlay = document.getElementById(`${task}-cooldown`);
+                if (expiry && Date.now() < expiry) {
+                    overlay.style.display = 'flex';
+                    const remaining = Math.floor((expiry - Date.now()) / 1000);
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    overlay.querySelector('.timer-text').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                } else {
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+
+        function claimDaily() {
+            const lastClaim = localStorage.getItem('lastDaily');
+            const today = new Date().toDateString();
+            if (lastClaim === today) {
+                alert("Already claimed today!");
+            } else {
+                points += 50;
+                localStorage.setItem('lastDaily', today);
+                updateUI();
+                showToast("Daily Bonus Claimed!");
+            }
+        }
+
+        init();
+    </script>
+</body>
+  </html>
